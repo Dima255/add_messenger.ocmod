@@ -2,34 +2,38 @@
 <modification>
   <name>add_messenger</name>
   <code>add_messenger_mod</code>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <author>&lt;a href=&quot;https://github.com/Dima255&quot; &gt;GitHub&lt;/a&gt;</author>
   <link>https://github.com/Dima255</link>
- 
-<file path="admin/view/template/sale/order_info.twig">
-  <operation error="skip">
-    <search><![CDATA[<td>{{ telephone }}</td>]]></search>
-    <add position="replace">
-      <![CDATA[<td>{{ telephone }} <a class="fa fa-whatsapp" href="https://wa.me/{{ messenger }}" target="_blank"></a> <a class="fa fa-telegram" href="https://t.me/{{ messenger }}" target="_blank"></a></td>]]>
-    </add>
-  </operation>
-</file>
 
-<file path="admin/controller/sale/order.php">
-  <operation error="skip">
-    <search index="1">
-      <![CDATA[$data['telephone'] = $order_info['telephone'];]]></search>
-    <add position="after">
-      <![CDATA[
-	  // WhatsApp, Telegram
-			$str = $data['telephone'];
-			$str = str_replace("(", "", $str);
-			$str = str_replace(")", "", $str);
-			$str = str_replace("-", "", $str);
-			$str = str_replace(" ", "", $str);
-			$data['messenger'] = $str;
-	  ]]>
-    </add>
-  </operation>
-</file>
+  <file path="admin/view/template/sale/order_info.twig">
+    <operation error="skip">
+      <search><![CDATA[<td>{{ telephone }}</td>]]></search>
+      <add position="replace">
+        <![CDATA[<td>{{ telephone }} <a class="fa fa-whatsapp" href="https://wa.me/{{ messenger_wa }}" target="_blank"></a> <a class="fa fa-telegram" href="https://telegram.me/{{ messenger_tg }}" target="_blank"></a></td>]]>
+      </add>
+    </operation>
+  </file>
+
+  <file path="admin/controller/sale/order.php">
+    <operation error="skip">
+      <search index="1">
+        <![CDATA[$data['telephone'] = $order_info['telephone'];]]></search>
+      <add position="after">
+        <![CDATA[
+        // WhatsApp, Telegram
+        $phone = $order_info['telephone'];
+
+        // Оставляем только цифры
+        $digits = preg_replace('/\D+/', '', $phone);
+
+        // WhatsApp: wa.me принимает только цифры, без '+'
+        $data['messenger_wa'] = $digits;
+
+        // Telegram: t.me/+<номер> — нужен ведущий '+'
+        $data['messenger_tg'] = '+' . $digits;
+        ]]>
+      </add>
+    </operation>
+  </file>
 </modification>
